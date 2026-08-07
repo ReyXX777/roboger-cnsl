@@ -1,4 +1,4 @@
-#include "WorkflowSimulationController.h"
+#include "Wsc.h"
 
 WorkflowSimulationController::WorkflowSimulationController(QObject *parent)
     : QObject(parent) {

@@ -18,7 +18,7 @@ The simulator runs a continuous, hands-free demo loop:
 | **3** | **Procedure Select** | 
 | **4** | **Energy Config** | 
 | **5** | **Overview** | 
-## 🚀 Build & Run (Qt 5.15.2 / MinGW)
+##  Build & Run 
 
 
 ```powershell

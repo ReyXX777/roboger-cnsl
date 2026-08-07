@@ -7,13 +7,13 @@ RESOURCES += resources.qrc
 
 
 HEADERS += \
-    src/model/ConsoleWorkflowModel.h \
-    src/controller/WorkflowSimulationController.h
+    src/model/Cwm.h \
+    src/controller/Wsc.h
 
 SOURCES += \
     src/main.cpp \
-    src/model/ConsoleWorkflowModel.cpp \
-    src/controller/WorkflowSimulationController.cpp
+    src/model/Cwm.cpp \
+    src/controller/Wsc.cpp
 
 
 qnx: target.path = /tmp/$${TARGET}/bin

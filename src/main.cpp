@@ -1,8 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "model/ConsoleWorkflowModel.h"
-#include "controller/WorkflowSimulationController.h"
+#include "model/Cwm.h"
+#include "controller/Wsc.h"
 
 int main(int argc, char *argv[]) {
     
