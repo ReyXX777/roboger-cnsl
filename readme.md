@@ -1,3 +1,8 @@
+
+
+https://github.com/user-attachments/assets/53595d04-3784-4e0b-ad15-3cade42d822c
+
+
 # Surgical Console Simulator (Qt/QML/C++)
 
 HF automated simulation of a robotic surgical console HMI
