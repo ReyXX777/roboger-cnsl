@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Main.qml</file>
+        <file>qml/views/AccountSelectView.qml</file>
+        <file>qml/views/PinEntryView.qml</file>
+        <file>qml/views/ErgonomicsView.qml</file>
+        <file>qml/views/ProcedureView.qml</file>
+        <file>qml/views/EnergyConfigView.qml</file>
+        <file>qml/views/OverviewView.qml</file>
+        <file>qml/components/MedicalButton.qml</file>
+        <file>qml/components/FooterBar.qml</file>
+        <file>qml/components/SideBar.qml</file>
+    </qresource>
+</RCC>
