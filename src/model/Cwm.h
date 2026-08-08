@@ -43,26 +43,22 @@ public:
         emit selectedSurgeonChanged(); 
     }
 
-    
     void setPinProgress(int val) {
-        if (val < 0 || val > 6) return;       
+        if (val < 0 || val > 6) return;        
         if (m_pinProgress == val) return;     
         
         m_pinProgress = val;
         emit pinProgressChanged();            
     }
 
-    
     void setErgoProgress(double val) {
         if (std::isnan(val)) return;
         val = qBound(0.0, val, 1.0);
-        // Use fuzzy compare that handles 0.0 correctly
         if (qFuzzyCompare(m_ergoProgress + 1.0, val + 1.0)) return;
         m_ergoProgress = val;
         emit ergoProgressChanged();
     }
 
-    
     void setMonopolarCut(int val) {
         if (val < 0 || val > 10) return;      
         if (m_monopolarCut == val) return;    
@@ -71,13 +67,12 @@ public:
         emit monopolarCutChanged();           
     }
 
-    
     void setBipolarCoag(int val) {
         if (val < 0 || val > 10) return;      
         if (m_bipolarCoag == val) return;     
         
         m_bipolarCoag = val;
-        emit bipolarCoagChanged();            
+        emit bipolarCoagChanged();           
     }
 
 signals:
@@ -89,12 +84,12 @@ signals:
     void bipolarCoagChanged();
 
 private:
-    int m_currentState = State::AccountSelect;
-    QString m_selectedSurgeon = "GUEST";
-    int m_pinProgress = 0;
-    double m_ergoProgress = 0.0;
-    int m_monopolarCut = 6; 
-    int m_bipolarCoag = 3;  
+    int m_currentState;
+    QString m_selectedSurgeon;
+    int m_pinProgress;
+    double m_ergoProgress;
+    int m_monopolarCut; 
+    int m_bipolarCoag;  
 };
 
-#endif 
+#endif
