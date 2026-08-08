@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QMetaObject>
+#include <chrono>
 
 class ConsoleWorkflowModel;
 
@@ -19,8 +21,9 @@ private slots:
 
 private:
     QTimer m_timer;
-    ConsoleWorkflowModel *m_model;
-    double m_simTime;
+    ConsoleWorkflowModel *m_model{nullptr};
+    std::chrono::milliseconds m_simTime{0};
+    QMetaObject::Connection m_modelConnection;
 };
 
 #endif
