@@ -2,8 +2,7 @@
 #define CONSOLEWORKFLOWMODEL_H
 
 #include <QObject>
-#include <cmath>
-#include <QtMath>
+#include <QString>
 
 class ConsoleWorkflowModel : public QObject {
     Q_OBJECT
@@ -20,60 +19,19 @@ public:
 
     explicit ConsoleWorkflowModel(QObject *parent = nullptr);
 
-    int currentState() const { return m_currentState; }
-    QString selectedSurgeon() const { return m_selectedSurgeon; }
-    int pinProgress() const { return m_pinProgress; }
-    double ergoProgress() const { return m_ergoProgress; }
-    int monopolarCut() const { return m_monopolarCut; }
-    int bipolarCoag() const { return m_bipolarCoag; }
+    int currentState() const;
+    QString selectedSurgeon() const;
+    int pinProgress() const;
+    double ergoProgress() const;
+    int monopolarCut() const;
+    int bipolarCoag() const;
 
-    void setCurrentState(int val) {
-        if (val < 0 || val > 6) return; 
-        if (m_currentState == val) return; 
-        
-        m_currentState = val;
-        emit currentStateChanged(); 
-    }
-
-    void setSelectedSurgeon(const QString &val) {
-        if (val.isEmpty()) return; 
-        if (m_selectedSurgeon == val) return; 
-        
-        m_selectedSurgeon = val;
-        emit selectedSurgeonChanged(); 
-    }
-
-    void setPinProgress(int val) {
-        if (val < 0 || val > 6) return;        
-        if (m_pinProgress == val) return;     
-        
-        m_pinProgress = val;
-        emit pinProgressChanged();            
-    }
-
-    void setErgoProgress(double val) {
-        if (std::isnan(val)) return;
-        val = qBound(0.0, val, 1.0);
-        if (qFuzzyCompare(m_ergoProgress + 1.0, val + 1.0)) return;
-        m_ergoProgress = val;
-        emit ergoProgressChanged();
-    }
-
-    void setMonopolarCut(int val) {
-        if (val < 0 || val > 10) return;      
-        if (m_monopolarCut == val) return;    
-        
-        m_monopolarCut = val;
-        emit monopolarCutChanged();           
-    }
-
-    void setBipolarCoag(int val) {
-        if (val < 0 || val > 10) return;      
-        if (m_bipolarCoag == val) return;     
-        
-        m_bipolarCoag = val;
-        emit bipolarCoagChanged();           
-    }
+    void setCurrentState(int val);
+    void setSelectedSurgeon(const QString &val);
+    void setPinProgress(int val);
+    void setErgoProgress(double val);
+    void setMonopolarCut(int val);
+    void setBipolarCoag(int val);
 
 signals:
     void currentStateChanged();
@@ -84,12 +42,12 @@ signals:
     void bipolarCoagChanged();
 
 private:
-    int m_currentState;
-    QString m_selectedSurgeon;
-    int m_pinProgress;
-    double m_ergoProgress;
-    int m_monopolarCut; 
-    int m_bipolarCoag;  
+    int m_currentState{AccountSelect};
+    QString m_selectedSurgeon{"GUEST"};
+    int m_pinProgress{0};
+    double m_ergoProgress{0.0};
+    int m_monopolarCut{6};
+    int m_bipolarCoag{3};
 };
 
 #endif
