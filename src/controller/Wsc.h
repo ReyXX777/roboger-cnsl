@@ -3,7 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
-#include "model/ConsoleWorkflowModel.h"
+
+class ConsoleWorkflowModel;
 
 class WorkflowSimulationController : public QObject {
     Q_OBJECT
@@ -18,8 +19,8 @@ private slots:
 
 private:
     QTimer m_timer;
-    ConsoleWorkflowModel *m_model = nullptr;
-    double m_simTime = 0.0;
+    ConsoleWorkflowModel *m_model;
+    double m_simTime;
 };
 
-#endif 
+#endif
