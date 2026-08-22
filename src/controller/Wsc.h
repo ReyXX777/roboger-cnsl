@@ -6,24 +6,30 @@
 #include <QMetaObject>
 #include <chrono>
 
+namespace model {
 class ConsoleWorkflowModel;
+}
+
+namespace controller {
 
 class WorkflowSimulationController : public QObject {
     Q_OBJECT
 public:
-    explicit WorkflowSimulationController(QObject *parent = nullptr);
+    explicit WorkflowSimulationController(QObject *l_parent = nullptr);
     
-    void setModel(ConsoleWorkflowModel *model);
+    void setModel(::model::ConsoleWorkflowModel *l_model);
     void startSimulation();
 
 private slots:
     void onSimulationTick();
 
 private:
-    QTimer m_timer;
-    ConsoleWorkflowModel *m_model{nullptr};
-    std::chrono::milliseconds m_simTime{0};
-    QMetaObject::Connection m_modelConnection;
+    QTimer m_timer{};
+    ::model::ConsoleWorkflowModel *m_model{nullptr};
+    ::std::chrono::milliseconds m_simTime{0};
+    QMetaObject::Connection m_modelConnection{};
 };
 
-#endif
+} // namespace controller
+
+#endif // WORKFLOWSIMULATIONCONTROLLER_H
