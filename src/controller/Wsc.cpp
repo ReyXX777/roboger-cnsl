@@ -1,42 +1,52 @@
 #include "Wsc.h"
+#include "model/Cwm.h"
 
 #include <algorithm>
 #include <cmath>
 
+namespace controller {
+
 namespace {
-    using namespace std::chrono_literals;
+    using namespace ::std::chrono_literals;
 
-    constexpr auto kTickInterval          = 16ms;
-    constexpr auto kAccountSelectTimeout  = 3000ms;
-    constexpr auto kPinStepInterval       = 400ms;
-    constexpr auto kPinEntryTimeout       = 3400ms;
-    constexpr auto kErgoTimeout           = 5500ms;
-    constexpr auto kProcedureSelectTimeout= 2500ms;
-    constexpr auto kOverviewTimeout       = 5000ms;
+    constexpr auto g_tickInterval{16ms};
+    constexpr auto g_accountSelectTimeout{3000ms};
+    constexpr auto g_pinStepInterval{400ms};
+    constexpr auto g_pinEntryTimeout{3400ms};
+    constexpr auto g_ergoTimeout{5500ms};
+    constexpr auto g_procedureSelectTimeout{2500ms};
+    constexpr auto g_overviewTimeout{5000ms};
+
+    constexpr auto g_energyCutDelay{1000ms};
+    constexpr auto g_energyCoagDelay{2000ms};
+    constexpr auto g_energyConfigTimeout{3500ms};
+
+    constexpr double g_ergoRampDurationMs{4000.0};
+    constexpr int g_maxPinCount{6};
 }
 
-WorkflowSimulationController::WorkflowSimulationController(QObject *parent)
-    : QObject(parent)
+WorkflowSimulationController::WorkflowSimulationController(QObject *l_parent)
+    : QObject(l_parent)
     , m_timer() {
-    connect(&m_timer, &QTimer::timeout, this, &WorkflowSimulationController::onSimulationTick);
+    ::QObject::connect(&m_timer, &QTimer::timeout, this, &WorkflowSimulationController::onSimulationTick);
 }
 
-void WorkflowSimulationController::setModel(ConsoleWorkflowModel *model) {
+void WorkflowSimulationController::setModel(::model::ConsoleWorkflowModel *l_model) {
     if (m_modelConnection) {
-        QObject::disconnect(m_modelConnection);
+        ::QObject::disconnect(m_modelConnection);
     }
 
-    m_model = model;
+    m_model = l_model;
 
     if (m_model) {
-        m_modelConnection = connect(m_model, &ConsoleWorkflowModel::currentStateChanged, this, [this]() {
-            m_simTime = std::chrono::milliseconds::zero();
+        m_modelConnection = ::QObject::connect(m_model, &::model::ConsoleWorkflowModel::currentStateChanged, this, [this]() {
+            m_simTime = ::std::chrono::milliseconds::zero();
         });
     }
 }
 
 void WorkflowSimulationController::startSimulation() {
-    m_timer.start(kTickInterval);
+    m_timer.start(g_tickInterval);
 }
 
 void WorkflowSimulationController::onSimulationTick() {
@@ -44,71 +54,74 @@ void WorkflowSimulationController::onSimulationTick() {
         return;
     }
 
-    m_simTime += std::chrono::milliseconds(m_timer.interval());
+    m_simTime += ::std::chrono::milliseconds(m_timer.interval());
 
-    const auto state = m_model->currentState();
+    const auto l_state = m_model->currentState();
+    using State = ::model::ConsoleWorkflowModel::State;
 
-    if (state == ConsoleWorkflowModel::AccountSelect) {
-        if (m_simTime > kAccountSelectTimeout) {
+    if (l_state == State::AccountSelect) {
+        if (m_simTime > g_accountSelectTimeout) {
             m_model->setSelectedSurgeon("SUPERVISOR");
             m_model->setPinProgress(0);
             m_model->setErgoProgress(0.0);
-            m_model->setCurrentState(ConsoleWorkflowModel::PinEntry);
+            m_model->setCurrentState(State::PinEntry);
             m_simTime = 0ms;
         }
     } 
-    else if (state == ConsoleWorkflowModel::PinEntry) {
-        int targetPins = static_cast<int>(
-            std::lround(m_simTime.count() / static_cast<double>(kPinStepInterval.count()))
+    else if (l_state == State::PinEntry) {
+        int l_targetPins = static_cast<int>(
+            ::std::lround(m_simTime.count() / static_cast<double>(g_pinStepInterval.count()))
         ); 
         
-        if (targetPins <= 6) {
-            m_model->setPinProgress(targetPins);
+        if (l_targetPins <= g_maxPinCount) {
+            m_model->setPinProgress(l_targetPins);
         }
 
-        if (m_model->pinProgress() >= 6 && m_simTime > kPinEntryTimeout) {
-            m_model->setCurrentState(ConsoleWorkflowModel::Ergonomics);
+        if (m_model->pinProgress() >= g_maxPinCount && m_simTime > g_pinEntryTimeout) {
+            m_model->setCurrentState(State::Ergonomics);
             m_simTime = 0ms;
         }
     }
-    else if (state == ConsoleWorkflowModel::Ergonomics) {
-        double targetProgress = std::min(1.0, m_simTime.count() / 4000.0);
-        m_model->setErgoProgress(targetProgress);
+    else if (l_state == State::Ergonomics) {
+        double l_targetProgress = ::std::min(1.0, m_simTime.count() / g_ergoRampDurationMs);
+        m_model->setErgoProgress(l_targetProgress);
 
-        if (m_simTime > kErgoTimeout) {
-            m_model->setCurrentState(ConsoleWorkflowModel::ProcedureSelect);
+        if (m_simTime > g_ergoTimeout) {
+            m_model->setCurrentState(State::ProcedureSelect);
             m_simTime = 0ms;
         }
     }
-    else if (state == ConsoleWorkflowModel::ProcedureSelect) {
-        if (m_simTime > kProcedureSelectTimeout) {
-            m_model->setCurrentState(ConsoleWorkflowModel::EnergyConfig);
+    else if (l_state == State::ProcedureSelect) {
+        if (m_simTime > g_procedureSelectTimeout) {
+            m_model->setCurrentState(State::EnergyConfig);
             m_simTime = 0ms;
         }
     }
-    else if (state == ConsoleWorkflowModel::EnergyConfig) {
-        if (m_simTime > 1000ms && m_model->monopolarCut() != 5) {
+    else if (l_state == State::EnergyConfig) {
+        if (m_simTime > g_energyCutDelay && m_model->monopolarCut() != 5) {
             m_model->setMonopolarCut(5);
         }
         
-        if (m_simTime > 2000ms && m_model->bipolarCoag() != 4) {
+        if (m_simTime > g_energyCoagDelay && m_model->bipolarCoag() != 4) {
             m_model->setBipolarCoag(4);
         }
 
-        if (m_simTime > 3500ms) {
-            m_model->setCurrentState(ConsoleWorkflowModel::Overview);
+        if (m_simTime > g_energyConfigTimeout) {
+            m_model->setCurrentState(State::Overview);
             m_simTime = 0ms;
         }
     }
-    else if (state == ConsoleWorkflowModel::Overview) {
-        if (m_simTime > kOverviewTimeout) {
+    else if (l_state == State::Overview) {
+        if (m_simTime > g_overviewTimeout) {
             m_model->setPinProgress(0);
             m_model->setErgoProgress(0.0);
             m_model->setMonopolarCut(6);
             m_model->setBipolarCoag(3);
             m_model->setSelectedSurgeon("GUEST");
-            m_model->setCurrentState(ConsoleWorkflowModel::AccountSelect);
+            m_model->setCurrentState(State::AccountSelect);
             m_simTime = 0ms;
         }
     }
 }
+
+} // namespace controller
